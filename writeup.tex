@@ -1,0 +1,184 @@
+\documentclass[12pt]{article}
+
+% --------------------
+% Packages
+% --------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{float}
+
+\setstretch{1.2}
+
+% --------------------
+% Title Information
+% --------------------
+\title{AI in Cybersecurity -- Lab 2 \\ \large Kickstarting an AI in Cybersecurity Project}
+\author{Dan LaChance}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Student Information}
+\begin{itemize}
+    \item \textbf{Name:} Dan LaChance
+    \item \textbf{Course:} AI in Cybersecurity
+    \item \textbf{Lab Title:} Kickstarting an AI Project in Cybersecurity
+    \item \textbf{Git Repository URL:} \href{https://github.com/dlach1/ai-cyber-lab2-danlachance}{https://github.com/dlach1/ai-cyber-lab2-danlachance}
+\end{itemize}
+
+\hrule
+
+\section{Introduction}
+In the current age of cybersecurity, companies are commonly initially compromised through phishing emails. These phishing emails likely have links or filed embedded into them that the user must click.
+This attack can then be chained with a stager/dropper for information stealers, C2 agents, and more.
+For the security of an organization, it is critical to limit the effect of phishing emails on their employees. One method of limiting this attack chain is by filtering out possible phishing emails (or urls) from reaching their personnel's inboxes.
+This report describes a url phishing detection algorithm using machine learning. The malicious and benign data samples were collected from Kaggle and the final product is largely a result from OpenAI's Codex agent.
+
+\section{Project Track and Dataset}
+
+\subsection{Selected Track}
+\begin{itemize}
+    \item \textbf{Phishing Detection}
+    \item Intrusion Detection
+    \item Malware Classification
+\end{itemize}
+
+This track was chosen due to its relevance in the current age of business compromise. The phishing attack chain is extremely common and any remedy would make a large difference for an organization.
+
+\subsection{Dataset Description}
+\begin{itemize}
+    \item \textbf{Dataset source:} Kaggle
+    \item \textbf{Number of samples:} 641,125
+    \item \textbf{Number of features:} 1 (url)
+    \item \textbf{Target labels:} phishing, benign, defacement, malware
+\end{itemize}
+
+% Briefly describe the features and any assumptions or limitations of the dataset.
+
+The key feature in this case is the url. The TF-IDF solution approach was used to find patterns in words or letters in the URLs.
+
+However, this approach assumes that the data are previously classified and large enough to support reasonable sized training and testing subsets.
+
+\section{Project Structure and Reproducibility}
+% Describe the repository structure and explain how it supports clean, reproducible machine learning experimentation (e.g., separation of data, source code, notebooks, and results).
+The project is structured in a way that supports clean and reproducible experimentation. The separation of source files, notebooks, results, and data allow for notebooks and source files to load newly added datasets from the same location. These processed result in metrics, joblibs, and confusion matrices in the same folder for easy analysis and comparison.
+
+\section{Exploratory Data Analysis (EDA)}
+% Summarize key findings from the EDA notebook, including:
+% \begin{itemize}
+%     \item Class distribution observations
+%     \item Feature summary insights
+%     \item One written insight (2--4 sentences)
+% \end{itemize}
+A Jupyter Notebook was used to find class distributions as seen in Figure 1. 
+
+% Add an image here
+% \begin{figure}
+
+As seen here, the dataset includes four url classifications, benign, defacement, phishing, and malware. In this case, defacement, phishing, and malware were all labeled as "phishing" or a positive flag. Of the 651,000 samples, 428,103 are benign, 96,457 were defacement, 94,111 were phishing, and 32,520 were malware. 
+Additionally, length insights were taken from the only feature, urls. 
+
+\begin{tabular}{l|l}
+    \textbf{Metric} & \textbf{Value}\\\hline
+    Count & 651191\\
+    Mean (char) & 60.156854\\
+    Std Dev (char) & 44.754050\\
+    Min (char) & 1\\
+    Max (char) & 2175\\
+\end{tabular}\\
+
+In this entire dataset of 651,191 data samples, the average length was roughly 60 characters with a standard deviation of 45. Since malware samples are likely much larger than urls, removing them in the future would likely lead to a decreased mean, standard deviation, and maximum.
+
+\section{Methodology}
+
+\subsection{Data Preprocessing}
+% Describe preprocessing steps such as cleaning, encoding, scaling, and train/test splitting.
+First, text was cleaned using a regex formula and labels were normalized to fit the accepted labels (benign, malicious, phishing, defacement). Next, since the data contained phishing, defacement, and malware urls, all being malicious these samples were simply marked with a positive flag.
+Finally, the data samples were split 80\% for training and 20\% for testing.
+
+\subsection{Model Selection}
+\textbf{Baseline model used:} TF-IDF with Linear Regression
+
+% Explain why this model was chosen as a baseline.
+This model was chosen because of its simplicity and effectiveness at classifying text-based data. Since urls are simply text, likely with word/string patterns and we needed a binary classifier, it was a clear choice.
+
+\section{Training Procedure}
+% Explain the training workflow implemented in \texttt{train.py}, including key parameters and whether the trained model was saved.
+After all data were normalized in the data preprocessing section, they were fed into a pipeline that used linear regression against TF-IDF data. This then could be invoked by the user.
+After each time training was invoked, it would save the resulting model in a \textit{.joblib} file.
+
+\section{Evaluation and Results}
+
+\subsection{Evaluation Metrics}
+The following metrics are reported from \texttt{results/metrics.json}:
+\begin{itemize}
+    \item Accuracy: 0.9694
+    \item Precision: 0.9673
+    \item Recall: 0.9278
+    \item F1-score: 0.9471
+\end{itemize}
+
+\subsection{Confusion Matrix}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{results/confusion_matrix.png}
+    \caption{Confusion Matrix}
+\end{figure}
+
+% Briefly interpret the confusion matrix and discuss misclassification patterns.
+The confusion matrix shows that the url classifier was clearly effective at flagging malicious data. The vast majority of malicious data samples were caught by this simple classifier, without allowing too many false positives. 
+False positives would require the security team to look into benign data samples, wasting their time and true negatives would be urls that end up in personnels' inboxes. With true negatives, we run the risk of compromise.
+
+\section{Discussion}
+% Discuss what the results indicate about the effectiveness of the baseline model. Address strengths, weaknesses, and any issues such as class imbalance or feature limitations.
+From the results (~97\% accuracy and ~93\% recall), the machine learning model clearly has promise, but it is possible that it is overfitting against the dataset it was trained on. Since the training and test data both came from the same dataset, there could be unique formatting that allowed for it to reach these high classification numbers without learning anything meaningful. Moving forward, it should be tested against a vastly different data sample.
+
+\section{Ethics and Security Considerations}
+% Discuss ethical, safety, and security considerations, including potential misuse, bias, and data privacy concerns.
+Using an agentic coding framework does open up the company to risk not previously experienced. It provides the agent access to potentially private code bases and can expose private (or company) information to the organizations that created the chatbots. 
+In actual use, AI has been known to overlook security considerations, leading to unforeseen vulnerabilities, which is why it's important to keep a human in the loop for quality assurance.
+
+\section{Conclusion}
+% Summarize what was accomplished in this lab and the key lessons learned about building reproducible AI projects in cybersecurity.
+In this lab, we learned how to solve a simple cybersecurity coding problem using agentic programming (OpenAI's Codex). This coding agent was able to autonomously generate a code base that got about 90\% of the way to a finished product. The final product resulted in high accuracy and recall for the selected dataset.
+
+%\section{Optional Extensions}
+% If applicable, describe any extensions such as hyperparameter tuning, feature engineering, class imbalance handling, or model comparison.
+
+\section{Self-Assessment (Grading Rubric)}
+%Complete the table below to assess your work based on the provided grading rubric.
+
+\begin{longtable}{p{5cm} c c p{5cm}}
+\toprule
+\textbf{Rubric Category} & \textbf{Max Points} & \textbf{Self-Score} & \textbf{Justification / Evidence} \\
+\midrule
+Repository structure and cleanliness & 15 & 15 & Resulting code base adhered to the structure and the gitignore removed an case-by-case file bloat (such as joblib files). \\
+Working ML pipeline & 35 & 35 & Used OpenAI Codex as expected to streamline the development process and adhered to repository structure. \\
+Saved results and metrics & 10 & 10 & Results meet expectations (confusion matrix and metrics) and accuracy rates are within the margin of error.\\
+README quality and reproducibility & 25 & 25 & README clearly defines the expectations for datasets and steps to reproduce results. \\
+Proper Git usage & 15 & 15 & Used git for version control and shared the code base on submission. \\
+\midrule
+\textbf{Total} & \textbf{100} &  &  \\
+\bottomrule
+\end{longtable}
+
+%\noindent\textbf{Optional Bonus (+10):} Briefly describe any additional improvements or extensions completed.
+
+\section{Feedback}
+% Provide any feedback you have to improve this assignment.
+This assignment does a good job at showing the power of agentic coding. After taking Cyber Analytics and Machine Learning, it's useful to see how easily one of our projects can be completed.
+As far as its purpose goes, I think it does what we need, I would just move it to the first assignment.
+
+\section{References}
+% List any datasets, tools, libraries, or external references used.
+\begin{itemize}
+    \item OpenAI Codex
+    \item \href{https://scikit-learn.org/stable/user_guide.html}{Sklearn library documentation}
+\end{itemize}
+\end{document}
