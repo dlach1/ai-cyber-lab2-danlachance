@@ -34,6 +34,7 @@ POSITIVE_LABELS = {
     "malicious",
     "spam",
     "fraud",
+    "defacement",
     "1",
     "true",
     "yes",
